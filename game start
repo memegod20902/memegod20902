@@ -1,0 +1,58 @@
+
+let scene, camera, renderer, player, controls;
+const TILE_SIZE = 32;
+const WORLD_WIDTH = 100;
+const WORLD_HEIGHT = 20;
+let world = [];
+
+// Perlin noise function to generate smooth terrain
+function perlinNoise(x) {
+    let n = Math.floor(x * 0.1) % 2;
+    return n == 0 ? 1 : 0;
+}
+
+// Initialize the game
+function initGame() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Generate world
+    for (let x = 0; x < WORLD_WIDTH; x++) {
+        world[x] = [];
+        for (let y = 0; y < WORLD_HEIGHT; y++) {
+            let block = perlinNoise(x) ? createBlock(x, y) : null;
+            world[x][y] = block;
+        }
+    }
+
+    camera.position.z = 50;
+
+    animate();
+}
+
+// Create a block
+function createBlock(x, y) {
+    let geometry = new THREE.BoxGeometry(TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    let block = new THREE.Mesh(geometry, material);
+    block.position.x = x * TILE_SIZE;
+    block.position.y = y * TILE_SIZE;
+    scene.add(block);
+    return block;
+}
+
+// Animation loop
+function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+}
+
+// Event listener for the "Start Game" button
+document.getElementById('startButton').addEventListener('click', function () {
+    document.getElementById('titleScreen').style.display = 'none';
+    document.getElementById('gameCanvas').style.display = 'block';
+    initGame();
+});
